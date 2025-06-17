@@ -68,16 +68,16 @@ export default function Sidebar() {
             return (
               <div key={item.key} className="mb-1">
                 <Link href={item.href}>
-                  <a 
+                  <div 
                     className={cn(
-                      "sidebar-nav-item",
+                      "sidebar-nav-item cursor-pointer",
                       isActive && "active"
                     )}
                     onClick={() => handleNavClick(item.key)}
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     <span>{item.name}</span>
-                  </a>
+                  </div>
                 </Link>
                 
                 {item.subItems && (
@@ -88,16 +88,16 @@ export default function Sidebar() {
                       
                       return (
                         <Link key={subItem.key} href={subItem.href}>
-                          <a 
+                          <div 
                             className={cn(
-                              "block px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors rounded",
+                              "block px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors rounded cursor-pointer",
                               isSubActive && "text-white bg-sidebar-accent"
                             )}
                             onClick={() => handleNavClick(subItem.key)}
                           >
                             <SubIcon className="w-4 h-4 mr-2 inline" />
                             {subItem.name}
-                          </a>
+                          </div>
                         </Link>
                       );
                     })}
