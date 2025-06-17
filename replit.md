@@ -108,6 +108,7 @@ The storage layer is abstracted through the IStorage interface, making it easy t
 ```
 Changelog:
 - June 17, 2025. Initial setup
+- June 17, 2025. Created comprehensive README.md with complete documentation
 ```
 
 ## User Preferences
