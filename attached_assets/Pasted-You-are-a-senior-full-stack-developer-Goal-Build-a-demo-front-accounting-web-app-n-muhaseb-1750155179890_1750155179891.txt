@@ -1,0 +1,45 @@
+You are a senior full‑stack developer.
+
+❑ Goal  
+Build a *demo* front‑accounting web app (ön muhasebe) that runs on Replit.  
+It should be a clean single‑page React application written in **TypeScript** using **Vite**, **Tailwind CSS**, and **React Router**.
+
+❑ Features to implement  
+1. **Navigation layout**  
+   • Fixed left sidebar with logo + menu: **Dashboard**, **Cari (Customers)**, **Faturalar (Invoices)** → sub‑tabs **Alış (Purchase)** / **Satış (Sales)**.  
+   • Top bar with page title and “Add” button where relevant.
+
+2. **Cari (Customers)**  
+   • Table view: Name │ Tax/ID No │ Balance (₺) │ Last Invoice Date │ Actions (Edit/Delete).  
+   • “Add / Edit” modal form (validate required fields):  
+     ‑ Name / “Unvan” (string)  
+     ‑ Tax ID / “Vergi No” (numeric, 10 or 11 digits)  
+     ‑ Email  
+     ‑ Phone  
+     ‑ Address (multiline)  
+
+3. **Faturalar (Invoices)** ― *shared behaviour for Alış & Satış*  
+   • Tabbed interface switching Purchase / Sales lists.  
+   • Table columns: Invoice No │ Date │ Customer │ Net Total (₺) │ VAT │ Grand Total │ Status (Draft/Paid).  
+   • “Create Invoice” wizard:  
+     ‑ Step 1: Select customer (autocomplete).  
+     ‑ Step 2: Dynamic items grid (Description, Qty, Unit Price, VAT%). Auto‑calculate line totals, subtotal, VAT, grand total in real time.  
+     ‑ Step 3: Save (status = Draft). allow Edit / Delete.  
+
+4. **Dashboard (nice‑to‑have)**  
+   • KPI cards: # Customers, # Invoices, Outstanding Balance, Today’s Sales.  
+   • Bar chart of monthly sales (use mock data, chart.js).  
+
+5. **Data layer**  
+   • Keep everything in browser **localStorage** with a small helper wrapper (get / set / remove).  
+   • Provide seed/mock data on first load so the UI is populated.
+
+6. **Tech constraints & polish**  
+   • Use functional components + hooks; state handled with React Context or Zustand (your choice).  
+   • Tailwind for styling; responsive down to 375 px.  
+   • Type‑safe models: Customer, Invoice, InvoiceItem.  
+   • Lint + format (eslint + prettier).  
+   • Include an npm script `dev` that runs Vite, and a `replit.nix` or `replit` config so the project boots instantly on Replit.  
+   • Add brief README with setup/run instructions.
+
+Produce all source files in one response, starting with `package.json`, followed by `index.html`, `src/main.tsx`, etc. Keep imports relative. Keep comments concise.
