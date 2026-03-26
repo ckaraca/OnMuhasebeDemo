@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -42,7 +42,6 @@ export default function InvoiceWizard() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
 
-  // Determine invoice type from URL
   const invoiceType = location.includes('/purchase') ? 'purchase' : 'sales';
 
   const form = useForm<InvoiceFormData>({
@@ -69,18 +68,15 @@ export default function InvoiceWizard() {
     name: "items",
   });
 
-  // Fetch customers for autocomplete
   const { data: customers = [] } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
   });
 
-  // Filter customers based on search
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
     customer.taxId.includes(customerSearch)
   );
 
-  // Calculate totals
   const watchedItems = form.watch("items");
   const subtotal = watchedItems.reduce((sum, item) => {
     const itemTotal = (item.quantity || 0) * (item.unitPrice || 0);
@@ -135,18 +131,15 @@ export default function InvoiceWizard() {
   };
 
   const nextStep = () => {
-    if (currentInvoiceStep === 1) {
-      // Validate customer selection
-      if (!selectedCustomer) {
-        toast({
-          title: "Hata",
-          description: "Lütfen bir müşteri seçin",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (currentInvoiceStep === 1 && !selectedCustomer) {
+      toast({
+        title: "Hata",
+        description: "Lütfen bir müşteri seçin",
+        variant: "destructive",
+      });
+      return;
     }
-    
+
     if (currentInvoiceStep < 3) {
       setCurrentInvoiceStep(currentInvoiceStep + 1);
     }
@@ -169,7 +162,6 @@ export default function InvoiceWizard() {
     form.reset();
   };
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isInvoiceModalOpen) {
       form.setValue("type", invoiceType);
@@ -177,14 +169,15 @@ export default function InvoiceWizard() {
   }, [isInvoiceModalOpen, invoiceType, form]);
 
   const getStepIndicatorClass = (step: number) => {
-    if (step < currentInvoiceStep) return "w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium";
-    if (step === currentInvoiceStep) return "w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium";
-    return "w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium";
+    const color = step <= currentInvoiceStep
+      ? "bg-primary text-primary-foreground"
+      : "bg-gray-200 text-gray-600";
+    return `w-8 h-8 ${color} rounded-full flex items-center justify-center text-sm font-medium`;
   };
 
   const getStepTextClass = (step: number) => {
-    if (step <= currentInvoiceStep) return "ml-2 text-sm font-medium text-primary";
-    return "ml-2 text-sm font-medium text-gray-500";
+    const color = step <= currentInvoiceStep ? "text-primary" : "text-gray-500";
+    return `ml-2 text-sm font-medium ${color}`;
   };
 
   return (

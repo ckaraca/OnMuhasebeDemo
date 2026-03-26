@@ -51,7 +51,6 @@ export default function Invoices() {
     },
   });
 
-  // Filter invoices based on tab, search term, and status
   const filteredInvoices = invoices.filter(invoice => {
     const matchesType = invoice.type === activeTab;
     const matchesSearch = invoice.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,9 +82,7 @@ export default function Invoices() {
   };
 
   const renderInvoiceTable = (type: 'purchase' | 'sales') => {
-    const typeInvoices = filteredInvoices.filter(inv => inv.type === type);
-    
-    if (typeInvoices.length === 0) {
+    if (filteredInvoices.length === 0) {
       return (
         <div className="text-center py-12 text-gray-500">
           <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -115,7 +112,7 @@ export default function Invoices() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {typeInvoices.map((invoice) => (
+            {filteredInvoices.map((invoice) => (
               <TableRow key={invoice.id} className="hover:bg-gray-50 transition-colors">
                 <TableCell className="font-medium">{invoice.number}</TableCell>
                 <TableCell className="text-gray-500">{formatDate(invoice.date)}</TableCell>
@@ -186,85 +183,48 @@ export default function Invoices() {
             </TabsList>
           </div>
 
-          <TabsContent value="purchase" className="m-0">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Alış Faturaları</h3>
-                <Button 
-                  onClick={() => setInvoiceModalOpen(true)}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Yeni Fatura
-                </Button>
-              </div>
-
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <Input
-                    type="text"
-                    placeholder="Fatura ara..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+          {(["purchase", "sales"] as const).map((type) => (
+            <TabsContent key={type} value={type} className="m-0">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {type === "purchase" ? "Alış Faturaları" : "Satış Faturaları"}
+                  </h3>
+                  <Button
+                    onClick={() => setInvoiceModalOpen(true)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Yeni Fatura
+                  </Button>
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tüm Durumlar</SelectItem>
-                    <SelectItem value="draft">Taslak</SelectItem>
-                    <SelectItem value="paid">Ödendi</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input type="date" className="w-full sm:w-48" />
-              </div>
 
-              {renderInvoiceTable('purchase')}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="sales" className="m-0">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Satış Faturaları</h3>
-                <Button 
-                  onClick={() => setInvoiceModalOpen(true)}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Yeni Fatura
-                </Button>
-              </div>
-
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <Input
-                    type="text"
-                    placeholder="Fatura ara..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      placeholder="Fatura ara..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tüm Durumlar</SelectItem>
+                      <SelectItem value="draft">Taslak</SelectItem>
+                      <SelectItem value="paid">Ödendi</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input type="date" className="w-full sm:w-48" />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tüm Durumlar</SelectItem>
-                    <SelectItem value="draft">Taslak</SelectItem>
-                    <SelectItem value="paid">Ödendi</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input type="date" className="w-full sm:w-48" />
-              </div>
 
-              {renderInvoiceTable('sales')}
-            </div>
-          </TabsContent>
+                {renderInvoiceTable(type)}
+              </div>
+            </TabsContent>
+          ))}
         </Tabs>
       </CardContent>
     </Card>

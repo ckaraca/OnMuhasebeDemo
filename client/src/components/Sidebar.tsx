@@ -1,50 +1,39 @@
 import { Link, useLocation } from "wouter";
 import { Calculator, ChartLine, Users, FileText, ArrowDown, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAppStore } from "@/lib/store";
 
 export default function Sidebar() {
   const [location] = useLocation();
-  const { setCurrentPage } = useAppStore();
 
   const navItems = [
     {
       name: "Dashboard",
       href: "/dashboard",
       icon: ChartLine,
-      key: "dashboard"
     },
     {
       name: "Cari (Customers)",
       href: "/customers",
       icon: Users,
-      key: "customers"
     },
     {
       name: "Faturalar (Invoices)",
       href: "/invoices",
       icon: FileText,
-      key: "invoices",
       subItems: [
         {
           name: "Alış (Purchase)",
           href: "/invoices/purchase",
           icon: ArrowDown,
-          key: "invoices-purchase"
         },
         {
           name: "Satış (Sales)",
           href: "/invoices/sales",
           icon: ArrowUp,
-          key: "invoices-sales"
-        }
-      ]
-    }
+        },
+      ],
+    },
   ];
-
-  const handleNavClick = (key: string) => {
-    setCurrentPage(key);
-  };
 
   return (
     <div className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0 hidden md:block">
@@ -66,14 +55,13 @@ export default function Sidebar() {
             const isActive = location === item.href || location.startsWith(item.href + "/");
             
             return (
-              <div key={item.key} className="mb-1">
+              <div key={item.href} className="mb-1">
                 <Link href={item.href}>
                   <div 
                     className={cn(
                       "sidebar-nav-item cursor-pointer",
                       isActive && "active"
                     )}
-                    onClick={() => handleNavClick(item.key)}
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     <span>{item.name}</span>
@@ -87,13 +75,12 @@ export default function Sidebar() {
                       const isSubActive = location === subItem.href;
                       
                       return (
-                        <Link key={subItem.key} href={subItem.href}>
+                        <Link key={subItem.href} href={subItem.href}>
                           <div 
                             className={cn(
                               "block px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors rounded cursor-pointer",
                               isSubActive && "text-white bg-sidebar-accent"
                             )}
-                            onClick={() => handleNavClick(subItem.key)}
                           >
                             <SubIcon className="w-4 h-4 mr-2 inline" />
                             {subItem.name}

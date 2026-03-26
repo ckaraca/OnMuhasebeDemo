@@ -35,7 +35,6 @@ export default function Dashboard() {
     queryKey: ["/api/invoices"],
   });
 
-  // Calculate KPIs
   const totalCustomers = customers.length;
   const totalInvoices = invoices.length;
   const outstandingBalance = customers.reduce((sum, customer) => sum + (customer.balance || 0), 0);
@@ -46,7 +45,6 @@ export default function Dashboard() {
     })
     .reduce((sum, invoice) => sum + invoice.grandTotal, 0);
 
-  // Mock data for chart (last 6 months)
   const chartData = {
     labels: ['Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas'],
     datasets: [{

@@ -1,14 +1,24 @@
-import { Customer, Invoice, InsertCustomer, InsertInvoice } from "@shared/schema";
+import { Customer, Invoice, InsertCustomer, InsertInvoice, type InsertInvoiceItem } from "@shared/schema";
+
+function calculateInvoiceTotals(items: InsertInvoiceItem[]): {
+  subtotal: number;
+  totalVat: number;
+  grandTotal: number;
+} {
+  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const totalVat = items.reduce((sum, item) => {
+    return sum + (item.quantity * item.unitPrice * item.vatRate) / 100;
+  }, 0);
+  return { subtotal, totalVat, grandTotal: subtotal + totalVat };
+}
 
 export interface IStorage {
-  // Customer operations
   getCustomers(): Promise<Customer[]>;
   getCustomer(id: string): Promise<Customer | undefined>;
   createCustomer(customer: InsertCustomer): Promise<Customer>;
   updateCustomer(id: string, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
   deleteCustomer(id: string): Promise<boolean>;
-  
-  // Invoice operations
+
   getInvoices(): Promise<Invoice[]>;
   getInvoice(id: string): Promise<Invoice | undefined>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
@@ -19,6 +29,8 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private customers: Map<string, Customer>;
   private invoices: Map<string, Invoice>;
+  private nextCustomerId = 1;
+  private nextInvoiceId = 1;
 
   constructor() {
     this.customers = new Map();
@@ -27,7 +39,6 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    // Add some seed customers
     const seedCustomers: Customer[] = [
       {
         id: "1",
@@ -51,11 +62,11 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    seedCustomers.forEach(customer => {
+    for (const customer of seedCustomers) {
       this.customers.set(customer.id, customer);
-    });
+    }
+    this.nextCustomerId = seedCustomers.length + 1;
 
-    // Add some seed invoices
     const seedInvoices: Invoice[] = [
       {
         id: "1",
@@ -103,9 +114,10 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    seedInvoices.forEach(invoice => {
+    for (const invoice of seedInvoices) {
       this.invoices.set(invoice.id, invoice);
-    });
+    }
+    this.nextInvoiceId = seedInvoices.length + 1;
   }
 
   async getCustomers(): Promise<Customer[]> {
@@ -117,7 +129,7 @@ export class MemStorage implements IStorage {
   }
 
   async createCustomer(insertCustomer: InsertCustomer): Promise<Customer> {
-    const id = (this.customers.size + 1).toString();
+    const id = (this.nextCustomerId++).toString();
     const customer: Customer = {
       ...insertCustomer,
       id,
@@ -149,20 +161,13 @@ export class MemStorage implements IStorage {
   }
 
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
-    const id = (this.invoices.size + 1).toString();
+    const id = (this.nextInvoiceId++).toString();
     const invoiceCount = Array.from(this.invoices.values()).filter(inv => inv.type === insertInvoice.type).length + 1;
     const prefix = insertInvoice.type === "purchase" ? "ALI" : "SAT";
     const number = `${prefix}-2024-${invoiceCount.toString().padStart(3, "0")}`;
     
-    // Calculate totals
-    const subtotal = insertInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const totalVat = insertInvoice.items.reduce((sum, item) => {
-      const itemTotal = item.quantity * item.unitPrice;
-      return sum + (itemTotal * item.vatRate / 100);
-    }, 0);
-    const grandTotal = subtotal + totalVat;
+    const { subtotal, totalVat, grandTotal } = calculateInvoiceTotals(insertInvoice.items);
 
-    // Calculate item totals
     const itemsWithTotals = insertInvoice.items.map((item, index) => ({
       ...item,
       id: (index + 1).toString(),
@@ -188,17 +193,12 @@ export class MemStorage implements IStorage {
     if (!invoice) return undefined;
 
     const updatedInvoice = { ...invoice, ...updates };
-    
-    // Recalculate totals if items were updated
+
     if (updates.items) {
-      const subtotal = updatedInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-      const totalVat = updatedInvoice.items.reduce((sum, item) => {
-        const itemTotal = item.quantity * item.unitPrice;
-        return sum + (itemTotal * item.vatRate / 100);
-      }, 0);
-      updatedInvoice.subtotal = subtotal;
-      updatedInvoice.totalVat = totalVat;
-      updatedInvoice.grandTotal = subtotal + totalVat;
+      const totals = calculateInvoiceTotals(updatedInvoice.items);
+      updatedInvoice.subtotal = totals.subtotal;
+      updatedInvoice.totalVat = totals.totalVat;
+      updatedInvoice.grandTotal = totals.grandTotal;
     }
 
     this.invoices.set(id, updatedInvoice);
