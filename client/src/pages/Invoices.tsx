@@ -52,12 +52,11 @@ export default function Invoices() {
   });
 
   const filteredInvoices = invoices.filter(invoice => {
-    const matchesType = invoice.type === activeTab;
     const matchesSearch = invoice.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || invoice.status === statusFilter;
-    
-    return matchesType && matchesSearch && matchesStatus;
+
+    return matchesSearch && matchesStatus;
   });
 
   const handleDelete = (id: string) => {
@@ -82,7 +81,9 @@ export default function Invoices() {
   };
 
   const renderInvoiceTable = (type: 'purchase' | 'sales') => {
-    if (filteredInvoices.length === 0) {
+    const typeInvoices = filteredInvoices.filter(inv => inv.type === type);
+
+    if (typeInvoices.length === 0) {
       return (
         <div className="text-center py-12 text-gray-500">
           <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -112,7 +113,7 @@ export default function Invoices() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredInvoices.map((invoice) => (
+            {typeInvoices.map((invoice) => (
               <TableRow key={invoice.id} className="hover:bg-gray-50 transition-colors">
                 <TableCell className="font-medium">{invoice.number}</TableCell>
                 <TableCell className="text-gray-500">{formatDate(invoice.date)}</TableCell>
