@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,7 +33,6 @@ export default function CustomerModal() {
     },
   });
 
-  // Set form values when editing customer changes
   useEffect(() => {
     if (editingCustomer) {
       form.reset({

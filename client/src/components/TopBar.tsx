@@ -7,30 +7,24 @@ export default function TopBar() {
   const [location] = useLocation();
   const { setCustomerModalOpen, setInvoiceModalOpen } = useAppStore();
 
-  const getPageTitle = () => {
-    if (location === "/" || location === "/dashboard") return "Dashboard";
-    if (location === "/customers") return "Cari (Customers)";
-    if (location === "/invoices" || location.startsWith("/invoices")) return "Faturalar (Invoices)";
+  const isCustomersPage = location === "/customers";
+  const isInvoicesPage = location.startsWith("/invoices");
+
+  function getPageTitle(): string {
+    if (isCustomersPage) return "Cari (Customers)";
+    if (isInvoicesPage) return "Faturalar (Invoices)";
     return "Dashboard";
-  };
+  }
 
-  const getAddButtonText = () => {
-    if (location === "/customers") return "Yeni Müşteri";
-    if (location === "/invoices" || location.startsWith("/invoices")) return "Yeni Fatura";
-    return "Add New";
-  };
+  const showAddButton = isCustomersPage || isInvoicesPage;
 
-  const showAddButton = () => {
-    return location === "/customers" || location === "/invoices" || location.startsWith("/invoices");
-  };
-
-  const handleAddClick = () => {
-    if (location === "/customers") {
+  function handleAddClick(): void {
+    if (isCustomersPage) {
       setCustomerModalOpen(true);
-    } else if (location === "/invoices" || location.startsWith("/invoices")) {
+    } else if (isInvoicesPage) {
       setInvoiceModalOpen(true);
     }
-  };
+  }
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
@@ -43,14 +37,13 @@ export default function TopBar() {
         <h2 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h2>
       </div>
 
-      {/* Action Button */}
-      {showAddButton() && (
-        <Button 
+      {showAddButton && (
+        <Button
           onClick={handleAddClick}
           className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
-          <span>{getAddButtonText()}</span>
+          <span>{isCustomersPage ? "Yeni Müşteri" : "Yeni Fatura"}</span>
         </Button>
       )}
     </header>

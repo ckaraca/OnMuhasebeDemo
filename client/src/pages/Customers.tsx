@@ -42,17 +42,15 @@ export default function Customers() {
     },
   });
 
-  // Filter customers based on search term
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer.taxId.includes(searchTerm) ||
                          (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // For demo purposes, we'll consider customers with positive balance as "active"
-    const matchesStatus = statusFilter === "all" || 
+
+    const matchesStatus = statusFilter === "all" ||
                          (statusFilter === "active" && (customer.balance || 0) >= 0) ||
                          (statusFilter === "inactive" && (customer.balance || 0) < 0);
-    
+
     return matchesSearch && matchesStatus;
   });
 
