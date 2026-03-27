@@ -192,15 +192,26 @@ export class MemStorage implements IStorage {
     const invoice = this.invoices.get(id);
     if (!invoice) return undefined;
 
-    const updatedInvoice = { ...invoice, ...updates };
-
     if (updates.items) {
-      const totals = calculateInvoiceTotals(updatedInvoice.items);
-      updatedInvoice.subtotal = totals.subtotal;
-      updatedInvoice.totalVat = totals.totalVat;
-      updatedInvoice.grandTotal = totals.grandTotal;
+      const itemsWithTotals = updates.items.map((item, index) => ({
+        ...item,
+        id: (index + 1).toString(),
+        total: item.quantity * item.unitPrice,
+      }));
+      const totals = calculateInvoiceTotals(updates.items);
+      const updatedInvoice: Invoice = {
+        ...invoice,
+        ...updates,
+        items: itemsWithTotals,
+        subtotal: totals.subtotal,
+        totalVat: totals.totalVat,
+        grandTotal: totals.grandTotal,
+      };
+      this.invoices.set(id, updatedInvoice);
+      return updatedInvoice;
     }
 
+    const updatedInvoice: Invoice = { ...invoice, ...updates, items: invoice.items };
     this.invoices.set(id, updatedInvoice);
     return updatedInvoice;
   }
