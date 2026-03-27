@@ -47,12 +47,14 @@ export const invoiceSchema = z.object({
   status: z.enum(["draft", "paid"]),
 });
 
-export const insertInvoiceSchema = invoiceSchema.omit({ 
-  id: true, 
-  number: true, 
-  subtotal: true, 
-  totalVat: true, 
-  grandTotal: true 
+export const insertInvoiceSchema = invoiceSchema.omit({
+  id: true,
+  number: true,
+  subtotal: true,
+  totalVat: true,
+  grandTotal: true
+}).extend({
+  items: z.array(insertInvoiceItemSchema),
 });
 
 export type Invoice = z.infer<typeof invoiceSchema>;
